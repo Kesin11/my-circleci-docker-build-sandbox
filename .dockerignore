@@ -1,0 +1,7 @@
+build/
+out/
+docs/
+dist/
+.git/
+circleci-cli
+Dockerfile
