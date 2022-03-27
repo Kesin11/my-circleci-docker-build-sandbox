@@ -1,0 +1,14 @@
+FROM circleci/golang:1.17 as builder
+ENV CGO_ENABLED 0
+WORKDIR /home/circleci/project
+
+COPY go.mod go.sum ./
+# RUN --mount=type=bind,target=/go/,source=pkg,rw go mod download
+RUN go mod download
+COPY . .
+RUN --mount=type=bind,target=/home/circleci/.cache/go-build,source=go-build,rw make
+# RUN make
+
+FROM cimg/base:2022.03 as production
+
+COPY --from=builder /home/circleci/project/build/linux/amd64/circleci /usr/local/bin
