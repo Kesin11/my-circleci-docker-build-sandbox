@@ -8,5 +8,6 @@ COPY . .
 RUN make
 
 FROM cimg/base:2022.03 as production
+LABEL org.opencontainers.image.source https://github.com/Kesin11/my-circleci-docker-build-sandbox
 
 COPY --from=builder /home/circleci/project/build/linux/amd64/circleci /usr/local/bin
