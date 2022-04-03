@@ -94,8 +94,13 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 20.10.11
-      - run: docker version
-      - run: docker buildx create --use
+      - run: |
+          docker version
+          docker buildx version
+      - run: |
+          docker context create circleci
+          docker buildx create --use circleci
+          docker buildx ls
       - run: echo $GITHUB_CR_PAT | docker login ghcr.io -u kesin11 --password-stdin
       - run:
           name: Docker build with registry cache
