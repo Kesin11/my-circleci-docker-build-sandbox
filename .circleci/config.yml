@@ -69,6 +69,21 @@ jobs:
       - run:
           name: Simple docker build
           command: docker image build --progress=plain -t $IMAGE:latest -f Dockerfile .
+  docker-build-cache-mount:
+    docker:
+      - image: cimg/base:2022.03
+    environment:
+      DOCKER_BUILDKIT: 1
+      IMAGE: ghcr.io/kesin11/circleci-cli-sandbox
+    resource_class: small
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.11
+      - run: docker version
+      - run:
+          name: Docker build with cache mount
+          command: docker image build --progress=plain -t $IMAGE:latest -f Dockerfile_cache_mount .
   # deploy:
   #   executor: go
   #   steps:
@@ -91,6 +106,7 @@ workflows:
   ci:
     jobs:
       - docker-build
+      - docker-build-cache-mount
       # - deploy:
       #     filters:
       #       branches:
