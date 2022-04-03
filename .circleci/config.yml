@@ -132,8 +132,8 @@ jobs:
           docker context inspect circleci
       - restore_cache:
           keys: 
-            - v2-docker-cache-{{ arch }}-{{ .Branch }}
-            - v2-docker-cache-{{ arch }}
+            - v2-docker-cache-{{ arch }}-{{ .Branch }}-
+            - v2-docker-cache-{{ arch }}-
       - run:
           name: Docker build with local cache
           command: |
