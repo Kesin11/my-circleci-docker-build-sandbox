@@ -97,10 +97,12 @@ jobs:
       - run: |
           docker version
           docker buildx version
+          docker context inspect
       - run: |
           docker context create circleci
           docker buildx create --use circleci
           docker buildx ls
+          docker context inspect circleci
       - run: echo $GITHUB_CR_PAT | docker login ghcr.io -u kesin11 --password-stdin
       - run:
           name: Docker build with registry cache
