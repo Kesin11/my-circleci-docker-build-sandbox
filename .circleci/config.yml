@@ -111,6 +111,41 @@ jobs:
               --cache-to=type=registry,mode=max,ref=$IMAGE:cache \
               --cache-from=type=registry,ref=$IMAGE:cache \
               -t $IMAGE:latest .
+  docker-build-local-cache:
+    docker:
+      - image: cimg/base:2022.03
+    environment:
+      IMAGE: ghcr.io/kesin11/circleci-cli-sandbox
+    resource_class: small
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.11
+      - run: |
+          docker version
+          docker buildx version
+          docker context inspect
+      - run: |
+          docker context create circleci
+          docker buildx create --use circleci
+          docker buildx ls
+          docker context inspect circleci
+      - restore_cache:
+          keys: 
+            - v2-docker-cache-{{ arch }}-{{ .Branch }}
+            - v2-docker-cache-{{ arch }}
+      - run:
+          name: Docker build with registry cache
+          command: |
+            docker buildx build --progress=plain -f Dockerfile \
+              --cache-to=type=local,mode=max,dest=/tmp/docker_cache \
+              --cache-from=type=local,src=/tmp/docker_cache
+              -t $IMAGE:latest .
+      - save_cache:
+          key: v2-docker-cache-{{ arch }}-{{ .Branch }}
+          paths:
+            - /tmp/docker_cache
+
   # deploy:
   #   executor: go
   #   steps:
@@ -135,6 +170,7 @@ workflows:
       - docker-build
       - docker-build-cache-mount
       - docker-build-registry-cache
+      - docker-build-local-cache
       # - deploy:
       #     filters:
       #       branches:
