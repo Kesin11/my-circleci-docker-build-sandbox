@@ -58,6 +58,7 @@ jobs:
     docker:
       - image: cimg/base:2022.03
     environment:
+      DOCKER_BUILDKIT: 1
       IMAGE: ghcr.io/kesin11/circleci-cli-sandbox
     resource_class: small
     steps:
