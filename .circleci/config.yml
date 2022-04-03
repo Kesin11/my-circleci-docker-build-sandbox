@@ -142,7 +142,7 @@ jobs:
               --cache-from=type=local,src=/tmp/docker_cache \
               -t $IMAGE:latest .
       - save_cache:
-          key: v2-docker-cache-{{ arch }}-{{ .Branch }}
+          key: v2-docker-cache-{{ arch }}-{{ .Branch }}-{{ checksum /tmp/docker_cache/index.json }}
           paths:
             - /tmp/docker_cache
 
