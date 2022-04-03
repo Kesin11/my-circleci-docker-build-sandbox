@@ -84,6 +84,26 @@ jobs:
       - run:
           name: Docker build with cache mount
           command: docker image build --progress=plain -t $IMAGE:latest -f Dockerfile_cache_mount .
+  docker-build-registry-cache:
+    docker:
+      - image: cimg/base:2022.03
+    environment:
+      IMAGE: ghcr.io/kesin11/circleci-cli-sandbox
+    resource_class: small
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.11
+      - run: docker version
+      - run: docker buildx create --use
+      - run: echo $GITHUB_CR_PAT | docker login ghcr.io -u kesin11 --password-stdin
+      - run:
+          name: Docker build with registry cache
+          command: |
+            docker buildx build --progress=plain -f Dockerfile \
+              --cache-to=type=registry,mode=max,ref=$IMAGE:cache \
+              --cache-from=type=registry,ref=$IMAGE:cache \
+              -t $IMAGE:latest .
   # deploy:
   #   executor: go
   #   steps:
@@ -107,6 +127,7 @@ workflows:
     jobs:
       - docker-build
       - docker-build-cache-mount
+      - docker-build-registry-cache
       # - deploy:
       #     filters:
       #       branches:
