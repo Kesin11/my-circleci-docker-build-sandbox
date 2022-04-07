@@ -145,6 +145,24 @@ jobs:
           key: v2-docker-cache-{{ arch }}-{{ .Branch }}-{{ checksum "/tmp/docker_cache/index.json" }}
           paths:
             - /tmp/docker_cache
+  docker-build-copy-bin:
+    executor: go
+    environment:
+      IMAGE: ghcr.io/kesin11/circleci-cli-sandbox
+    resource_class: small
+    steps:
+      - checkout
+      - gomod
+      - run: make
+      - setup_remote_docker:
+          version: 20.10.11
+      - run:
+          name: Docker build only copy bin
+          command: |
+            rm -f .dockerignore
+            docker buildx build -f Dockerfile_copy_bin \
+              -t $IMAGE:copy_bin \
+              .
 
   # deploy:
   #   executor: go
@@ -171,6 +189,7 @@ workflows:
       - docker-build-cache-mount
       - docker-build-registry-cache
       - docker-build-local-cache
+      - docker-build-copy-bin
       # - deploy:
       #     filters:
       #       branches:
