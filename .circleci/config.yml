@@ -11,6 +11,7 @@ executors:
       - image: circleci/golang:1.17
     environment:
       CGO_ENABLED: 0
+      GOCACHE: "/tmp/go/cache"
 commands:
   build-docker-image:
     steps:
@@ -154,7 +155,15 @@ jobs:
     steps:
       - checkout
       - gomod
+      - restore_cache:
+          keys:
+            - build-cache-{{ .Branch }}-
+            - build-cache-
       - run: make
+      - save_cache:
+          key: build-cache-{{ .Branch }}-{{ .Revision }}
+          paths:
+              - /tmp/go/cache
       - setup_remote_docker:
           version: 20.10.11
       - run:
