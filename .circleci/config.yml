@@ -148,6 +148,7 @@ jobs:
   docker-build-copy-bin:
     executor: go
     environment:
+      DOCKER_BUILDKIT: 1
       IMAGE: ghcr.io/kesin11/circleci-cli-sandbox
     resource_class: small
     steps:
@@ -160,7 +161,7 @@ jobs:
           name: Docker build only copy bin
           command: |
             rm -f .dockerignore
-            docker buildx build -f Dockerfile_copy_bin \
+            docker image build -f Dockerfile_copy_bin \
               -t $IMAGE:copy_bin \
               .
 
