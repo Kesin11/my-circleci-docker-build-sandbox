@@ -7,6 +7,13 @@ executors:
     environment:
       CGO_ENABLED: 0
       GOCACHE: "/tmp/go/cache"
+  cimg-docker:
+    docker:
+      - image: cimg/base:2022.03
+    environment:
+      DOCKER_BUILDKIT: 1
+      IMAGE: ghcr.io/kesin11/circleci-cli-sandbox
+
 commands:
   gomod:
     steps:
@@ -19,57 +26,53 @@ commands:
           key: v2-gomod-{{ arch }}-{{ checksum "go.sum" }}
           paths:
             - /go/pkg/mod # Linux
-
-jobs:
-  docker-build:
-    docker:
-      - image: cimg/base:2022.03
-    environment:
-      DOCKER_BUILDKIT: 1
-      IMAGE: ghcr.io/kesin11/circleci-cli-sandbox
-    resource_class: small
+  setup-docker:
     steps:
-      - checkout
       - setup_remote_docker:
           version: 20.10.11
       - run: docker version
+  setup-buildx:
+    steps:
+      - run:
+          name: Show docker info
+          command: |
+            docker version
+            docker buildx version
+            docker context inspect
+      - run:
+          name: Setup docker buildx
+          command: |
+            docker context create circleci
+            docker buildx create --use circleci
+            docker buildx ls
+            docker context inspect circleci
+
+jobs:
+  docker-build:
+    executor: cimg-docker
+    resource_class: small
+    steps:
+      - checkout
+      - setup-docker
       - run:
           name: Simple docker build
           command: docker image build --progress=plain -t $IMAGE:latest -f Dockerfile .
   docker-build-cache-mount:
-    docker:
-      - image: cimg/base:2022.03
-    environment:
-      DOCKER_BUILDKIT: 1
-      IMAGE: ghcr.io/kesin11/circleci-cli-sandbox
+    executor: cimg-docker
     resource_class: small
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.11
-      - run: docker version
+      - setup-docker
       - run:
           name: Docker build with cache mount
           command: docker image build --progress=plain -t $IMAGE:latest -f Dockerfile_cache_mount .
   docker-build-registry-cache:
-    docker:
-      - image: cimg/base:2022.03
-    environment:
-      IMAGE: ghcr.io/kesin11/circleci-cli-sandbox
+    executor: cimg-docker
     resource_class: small
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.11
-      - run: |
-          docker version
-          docker buildx version
-          docker context inspect
-      - run: |
-          docker context create circleci
-          docker buildx create --use circleci
-          docker buildx ls
-          docker context inspect circleci
+      - setup-docker
+      - setup-buildx
       - run: echo $GITHUB_CR_PAT | docker login ghcr.io -u kesin11 --password-stdin
       - run:
           name: Docker build with registry cache
@@ -79,24 +82,12 @@ jobs:
               --cache-from=type=registry,ref=$IMAGE:cache \
               -t $IMAGE:latest .
   docker-build-local-cache:
-    docker:
-      - image: cimg/base:2022.03
-    environment:
-      IMAGE: ghcr.io/kesin11/circleci-cli-sandbox
+    executor: cimg-docker
     resource_class: small
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.11
-      - run: |
-          docker version
-          docker buildx version
-          docker context inspect
-      - run: |
-          docker context create circleci
-          docker buildx create --use circleci
-          docker buildx ls
-          docker context inspect circleci
+      - setup-docker
+      - setup-buildx
       - restore_cache:
           keys: 
             - v2-docker-cache-{{ arch }}-{{ .Branch }}-
@@ -130,8 +121,7 @@ jobs:
           key: build-cache-{{ .Branch }}-{{ .Revision }}
           paths:
               - /tmp/go/cache
-      - setup_remote_docker:
-          version: 20.10.11
+      - setup-docker
       - run:
           name: Docker build only copy bin
           command: |
