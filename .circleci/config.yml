@@ -8,25 +8,6 @@ executors:
       CGO_ENABLED: 0
       GOCACHE: "/tmp/go/cache"
 commands:
-  build-docker-image:
-    steps:
-      - run:
-          name: Build Latest Docker Image
-          command: |
-            docker build -t circleci/circleci-cli:0.1.$CIRCLE_BUILD_NUM .
-            docker run --rm circleci/circleci-cli:0.1.$CIRCLE_BUILD_NUM circleci update check
-  deploy-save-cache-workspace-and-artifacts:
-    steps:
-      - save_cache:
-          key: v4-goreleaser-{{ checksum "~/goreleaser_amd64.deb" }}
-          paths: [~/goreleaser_amd64.deb]
-      - persist_to_workspace:
-          root: .
-          paths:
-            - "dist"
-      - store_artifacts:
-          path: ./dist
-          destination: dist
   gomod:
     steps:
       - restore_cache:
