@@ -1,10 +1,5 @@
 version: 2.1
 
-# orbs:
-#   codecov: codecov/codecov@1.1.3
-#   shellcheck: circleci/shellcheck@1.2.0
-#   windows: circleci/windows@2.2.0
-
 executors:
   go:
     docker:
@@ -173,25 +168,6 @@ jobs:
             docker image build -f Dockerfile_copy_bin \
               -t $IMAGE:copy_bin \
               .
-
-  # deploy:
-  #   executor: go
-  #   steps:
-  #     - checkout
-  #     - gomod
-  #     - setup_remote_docker:
-  #         docker_layer_caching: true
-  #     - run:
-  #         name: Docker Login
-  #         command: docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
-  #     - build-docker-image
-  #     - run:
-  #         name: Deploy Docker Image
-  #         command: |
-  #           docker push     circleci/circleci-cli:0.1.$CIRCLE_BUILD_NUM
-  #           docker tag      circleci/circleci-cli:0.1.$CIRCLE_BUILD_NUM circleci/circleci-cli:latest
-  #           docker push     circleci/circleci-cli:latest
-  #     - deploy-save-cache-workspace-and-artifacts
 workflows:
   ci:
     jobs:
@@ -200,7 +176,3 @@ workflows:
       - docker-build-registry-cache
       - docker-build-local-cache
       - docker-build-copy-bin
-      # - deploy:
-      #     filters:
-      #       branches:
-      #         only: master
