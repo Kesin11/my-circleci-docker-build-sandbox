@@ -21,16 +21,6 @@ commands:
             - /go/pkg/mod # Linux
 
 jobs:
-  go-build:
-    executor: go
-    steps:
-      - checkout
-      - gomod
-      - run: make
-      - persist_to_workspace:
-          root: .
-          paths:
-            - "build"
   docker-build:
     docker:
       - image: cimg/base:2022.03
