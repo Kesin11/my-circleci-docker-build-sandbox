@@ -100,9 +100,8 @@ jobs:
               --cache-from=type=local,src=/tmp/docker_cache \
               -t $IMAGE:latest .
       - save_cache:
-          key: v2-docker-cache-{{ arch }}-{{ .Branch }}-{{ checksum "/tmp/docker_cache_invalid/index.json" }}
+          key: v2-invalid-docker-cache-{{ arch }}-{{ .Branch }}-{{ checksum "/tmp/docker_cache_invalid/index.json" }}
           paths:
-            - /tmp/docker_cache
             - /tmp/docker_cache_invalid
   docker-build-copy-bin:
     executor: go
