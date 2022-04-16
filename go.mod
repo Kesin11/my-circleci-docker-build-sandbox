@@ -82,3 +82,5 @@ require (
 replace github.com/coreos/etcd => github.com/coreos/etcd v3.3.24+incompatible
 
 go 1.17
+
+// Add meaningless comment to disable go mod cache layer

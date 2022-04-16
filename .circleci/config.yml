@@ -78,7 +78,7 @@ jobs:
           name: Docker build with registry cache
           command: |
             docker buildx build --progress=plain -f Dockerfile \
-              --cache-to=type=registry,mode=max,ref=$IMAGE:cache \
+              --cache-to=type=registry,mode=max,ref=$IMAGE:invalid_cache \
               --cache-from=type=registry,ref=$IMAGE:cache \
               -t $IMAGE:latest .
   docker-build-local-cache:
@@ -96,13 +96,14 @@ jobs:
           name: Docker build with local cache
           command: |
             docker buildx build --progress=plain -f Dockerfile \
-              --cache-to=type=local,mode=max,dest=/tmp/docker_cache \
+              --cache-to=type=local,mode=max,dest=/tmp/docker_cache_invalid \
               --cache-from=type=local,src=/tmp/docker_cache \
               -t $IMAGE:latest .
       - save_cache:
-          key: v2-docker-cache-{{ arch }}-{{ .Branch }}-{{ checksum "/tmp/docker_cache/index.json" }}
+          key: v2-docker-cache-{{ arch }}-{{ .Branch }}-{{ checksum "/tmp/docker_cache_invalid/index.json" }}
           paths:
             - /tmp/docker_cache
+            - /tmp/docker_cache_invalid
   docker-build-copy-bin:
     executor: go
     environment:
@@ -118,7 +119,7 @@ jobs:
             - build-cache-
       - run: make
       - save_cache:
-          key: build-cache-{{ .Branch }}-{{ .Revision }}
+          key: build-cache-{{ .Branch }}-{{ .Revision }}-invalid
           paths:
               - /tmp/go/cache
       - setup-docker
