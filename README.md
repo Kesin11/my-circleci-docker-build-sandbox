@@ -1,15 +1,19 @@
 # Demo code for Japan CircleCI User community meetup #9
 
-Build circleci-cli in Dockerfile and run on CircleCI. Compare many buildkit cache method.
+Build circleci-cli in Dockerfile and run on CircleCI. 
 
-Event page
+Compare many buildkit cache method. See [config.yml](./.circleci/config.yml)
+
+
+
+Event page  
 https://circleci.connpass.com/event/242577/
 
-Slide
+Slide  
 https://docs.google.com/presentation/d/1UpRyHsdx4bpBWE9P0VWznVCcupmjVWfmEXRoMbcAeIQ/edit#slide=id.g121ef9030c3_1_241
 
 
-Speaker deck
+Speaker deck  
 https://speakerdeck.com/kesin11/circlecidelayer-cachingwoshi-wazunidocker-buildwogao-su-hua-suru
 
 ----
